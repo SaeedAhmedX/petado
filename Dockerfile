@@ -23,7 +23,6 @@ USER developer
 
 WORKDIR /workspace
 
-COPY package*.json ./
 COPY . .
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
