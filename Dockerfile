@@ -18,11 +18,13 @@ RUN adduser --disabled-password --gecos '' --uid 999 --gid 999 developer
 # Install the latest version of Yarn
 RUN curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.22.19
 
-# Switching user
-USER developer
-
 WORKDIR /workspace
 
 COPY . .
+
+RUN chown -R developer:developer /workspace
+
+# Switching user
+USER developer
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
