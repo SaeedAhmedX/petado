@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `DogImage` ADD COLUMN `dogId` INTEGER NULL;
+
+-- AddForeignKey
+ALTER TABLE `DogImage` ADD CONSTRAINT `DogImage_dogId_fkey` FOREIGN KEY (`dogId`) REFERENCES `Dog`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

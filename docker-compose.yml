@@ -28,7 +28,6 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=petado
-      - TZ=+5:30
 
   server:
     container_name: petado_server

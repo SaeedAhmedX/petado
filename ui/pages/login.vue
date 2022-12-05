@@ -1,10 +1,11 @@
 <template>
   <div class="card p-3 login-container">
-    <form>
+    <form @submit.prevent="login()">
       <div class="mb-3">
         <label for="inputEmail1" class="form-label">Email address</label>
         <input
           id="inputEmail1"
+          v-model="user.email"
           type="email"
           class="form-control"
           aria-describedby="emailHelp"
@@ -15,14 +16,46 @@
       </div>
       <div class="mb-3">
         <label for="inputPassword1" class="form-label">Password</label>
-        <input id="inputPassword1" type="password" class="form-control" />
+        <input
+          id="inputPassword1"
+          v-model="user.password"
+          type="password"
+          class="form-control"
+        />
       </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </div>
 </template>
 
-<script setup></script>
+<script>
+import { ValidationObserver, ValidationProvider } from 'vee-validate';
+
+export default {
+  components: {
+    ValidationObserver,
+    ValidationProvider,
+  },
+  data() {
+    return {
+      user: {
+        email: '',
+        password: '',
+      },
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        const result = await this.$axios.post('user/login', this.user);
+        this.$router.push('/');
+      } catch (e) {
+        alert('Invalid user name or password');
+      }
+    },
+  },
+};
+</script>
 
 <style scoped lang="scss">
 .login-container {

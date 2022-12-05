@@ -11,20 +11,70 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  password String
-  address String
-  mobile String
-  gender Gender
-  profession String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  lastLogin DateTime
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  name        String?
+  password    String
+  address     String
+  mobile      String
+  gender      Gender
+  profession  String
+  permissions String    @default("[]")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLogin   DateTime
+  request     Request[]
 }
 
 enum Gender {
   MALE
   FEMALE
+}
+
+model DogImage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  location  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Dog       Dog?     @relation(fields: [dogId], references: [id])
+  dogId     Int?
+}
+
+model Request {
+  id          Int      @id @default(autoincrement())
+  creator     User     @relation(fields: [creatorId], references: [id])
+  description String
+  dogs        Dog[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  creatorId   Int
+}
+
+enum DogGender {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum DogType {
+  STREET
+  PET
+}
+
+model Dog {
+  id              Int        @id @default(autoincrement())
+  registerationId String
+  gender          DogGender
+  age             Int?
+  color           String
+  description     String
+  dogType         DogType
+  breed           String
+  price           Float
+  images          DogImage[]
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  Request         Request?   @relation(fields: [requestId], references: [id])
+  requestId       Int?
 }

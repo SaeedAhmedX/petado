@@ -6,7 +6,8 @@
   "license": "PRIVATE",
   "private": true,
   "scripts": {
-    "dev": "nodemon --exec babel-node index.js"
+    "dev": "nodemon --exec babel-node index.js",
+    "migrate": "prisma migrate dev"
   },
   "devDependencies": {
     "@babel/cli": "^7.19.3",
