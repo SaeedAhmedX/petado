@@ -96,6 +96,36 @@ app.get(`/user/details`, async (req, res) => {
   }
 });
 
+app.post(`/dog/request`, async (req, res) => {
+  if (req.session.user_id) {
+    try {
+      const request = req.body;
+      const dogs = request.dogs;
+      delete request.dogs;
+
+      request.creatorId = req.session.user_id;
+      request.dogs = {
+        create: dogs,
+      };
+
+      const result = await prisma.request.create({
+        data: request,
+      });
+
+      res.json({
+        data: result,
+      });
+    } catch (e) {
+      res.status(503).json({
+        error: true,
+        message: e.message,
+      });
+    }
+  } else {
+    res.sendStatus(403);
+  }
+});
+
 const port = 3000;
 
 app.listen(port, () => {
