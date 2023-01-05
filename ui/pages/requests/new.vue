@@ -1,38 +1,42 @@
 <template>
-  <div class="card p-3 signup-container">
-    <h3>Complaint</h3>
+  <div class="container-fluid request-container">
+    <div class="d-flex justify-content-between mb-5 mt-2">
+      <h3>New Request</h3>
+    </div>
+
     <ValidationObserver v-slot="{ handleSubmit }">
-      <form @submit.prevent="handleSubmit(sendRequest)">
-        <div class="mb-3">
-          <ValidationProvider
-            v-slot="{ errors }"
-            name="Complaint Description"
-            rules="required"
-          >
-            <label for="inputFullName" class="form-label"
-              >Complaint Description *</label
+      <div class="d-flex flex-column justify-content-left cards-container">
+        <div class="card p-3 form-container">
+          <div class="mb-3">
+            <ValidationProvider
+              v-slot="{ errors }"
+              name="Complaint Description"
+              rules="required"
             >
-            <textarea
-              id="inputDescription"
-              v-model="complaint.description"
-              class="form-control"
-              :class="{ 'is-invalid': errors && errors.length }"
-            />
-            <p v-if="errors && errors.length" class="invalid-feedback">
-              {{ errors[0] }}
-            </p>
-          </ValidationProvider>
+              <label for="inputFullName" class="form-label"
+                >Request Description *</label
+              >
+              <textarea
+                id="inputDescription"
+                v-model="complaint.description"
+                rows="12"
+                class="form-control"
+                :class="{ 'is-invalid': errors && errors.length }"
+              />
+              <p v-if="errors && errors.length" class="invalid-feedback">
+                {{ errors[0] }}
+              </p>
+            </ValidationProvider>
+          </div>
         </div>
 
-        <div class="dogs-header">
-          <p>Dogs</p>
-          <button class="btn btn-primary" @click="addDog">+</button>
-        </div>
-        <hr />
-
-        <div class="dogs-list">
-          <div v-for="(dog, index) in complaint.dogs" class="dog">
-            <p>#{{ index + 1 }}</p>
+        <div
+          v-for="(dog, index) in complaint.dogs"
+          :key="index"
+          class="d-flex justify-content-left"
+        >
+          <div class="card p-3 form-container">
+            <p>Dog #{{ index + 1 }}</p>
 
             <div class="mb-3">
               <ValidationProvider v-slot="{ errors }" name="Registration Id">
@@ -248,24 +252,38 @@
                 </p>
               </ValidationProvider>
             </div>
-            <hr />
+          </div>
+          <div class="image-container d-inline-flex justify-content-left">
+            <UploadImages @changed="(files) => handleImages(files, index)" />
           </div>
         </div>
-
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
+      </div>
+      <div class="action-group">
+        <button class="btn btn-primary rounded-pill" @click="addDog">
+          + ADD DOG
+        </button>
+        <button
+          class="btn btn-primary rounded-pill"
+          @click="handleSubmit(sendRequest)"
+        >
+          SUBMIT REQUEST
+        </button>
+      </div>
     </ValidationObserver>
   </div>
 </template>
 
 <script>
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
+import UploadImages from 'vue-upload-drop-images';
 
 export default {
   components: {
     ValidationObserver,
     ValidationProvider,
+    UploadImages,
   },
+  layout: 'home',
   data() {
     return {
       complaint: {
@@ -276,8 +294,30 @@ export default {
   },
   methods: {
     async sendRequest() {
-      await this.$axios.post('dog/request', this.complaint);
-      this.$router.push('/');
+      if (this.complaint.dogs.length) {
+        for (let i = 0; i < this.complaint.dogs.length; i++) {
+          if (this.complaint.dogs[i].uploads) {
+            const formData = new FormData();
+            formData.append('files', this.complaint.dogs[i].uploads);
+            for (const file of this.complaint.dogs[i].uploads) {
+              formData.append('files', file);
+            }
+            const result = await this.$axios.post('upload', formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            });
+            this.complaint.dogs[i].images = result.data.data;
+            delete this.complaint.dogs[i].uploads;
+          }
+        }
+      }
+      try {
+        await this.$axios.post('dogs/request', this.complaint);
+        this.$router.replace({
+          path: '/requests',
+        });
+      } catch (e) {}
     },
     getEmptyDog() {
       return {
@@ -295,21 +335,49 @@ export default {
     addDog() {
       this.complaint.dogs.push(this.getEmptyDog());
     },
+    handleImages(files, dogIndex) {
+      this.complaint.dogs[dogIndex].uploads = files;
+    },
   },
 };
 </script>
 
 <style scoped lang="scss">
-.signup-container {
+.form-container {
   width: 500px;
-  margin: 100px auto;
+  margin-right: 20px;
+  margin-bottom: 20px;
 }
 
-.dogs-header {
-  display: flex;
+.request-container {
+  .cards-container {
+    flex-wrap: wrap;
+  }
 
-  & > p {
+  .image-container {
     flex-grow: 1;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+
+    ::v-deep .clearButton {
+      text-transform: uppercase;
+    }
+
+    ::v-deep .imageHolder {
+      img {
+        border: 1px solid rgb(143, 143, 143);
+        border-radius: 10px;
+      }
+    }
+  }
+  .action-group {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+
+    button:not(:last-child) {
+      margin-right: 20px !important;
+    }
   }
 }
 </style>

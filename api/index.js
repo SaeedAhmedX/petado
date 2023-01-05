@@ -1,13 +1,17 @@
-// index.js
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
 import session from 'express-session';
+import multer from 'multer';
+import { PrismaClient } from '@prisma/client';
+import pagination from './middlewares/pagination';
+import userRouter from './modules/user';
+import dogRouter from './modules/dog';
 
-const prisma = new PrismaClient();
 const app = express();
+const upload = multer({ dest: 'uploads/' });
+const prisma = new PrismaClient();
 
+// MIDDLEWARES
 app.use(express.json()); // middleware
-
 app.use(
   // middleware
   session({
@@ -16,118 +20,37 @@ app.use(
     saveUninitialized: true,
   })
 );
+app.use(pagination);
 
-// index.js
-app.post(`/user`, async (req, res) => {
-  try {
-    const result = await prisma.user.create({
-      data: {
-        ...req.body,
-        lastLogin: new Date(),
-      },
-    });
-    req.session.user_id = result.id;
-    res.json(result);
-  } catch (e) {
-    res.status(503).json({
-      error: true,
-      message: e.message,
-    });
-  }
-});
+// MODULES
+app.use('/users', userRouter);
+app.use('/dogs', dogRouter);
 
-app.post(`/user/login`, async (req, res) => {
-  try {
-    const result = await prisma.user.findFirst({
-      where: {
-        email: req.body.email,
-        password: req.body.password,
-      },
-    });
-    if (!result) {
-      res.status(503).json({
-        error: true,
-        message: 'Invalid user name or password',
-      });
-    } else {
-      req.session.user_id = result.id;
-      res.json(result);
-    }
-  } catch (e) {
-    res.status(503).json({
-      error: true,
-      message: e.message,
-    });
-  }
-});
-
-app.get(`/user/details`, async (req, res) => {
-  if (req.session.user_id) {
-    const result = await prisma.user.findUnique({
-      where: {
-        id: req.session.user_id,
-      },
-    });
-
-    res.json({
-      data: result,
-    });
-  } else {
-    res.status(403).json({
-      error: true,
-      message: 'Permission denied',
-    });
-  }
-});
-
-app.get(`/user/details`, async (req, res) => {
-  if (req.session.user_id) {
-    const result = await prisma.user.findUnique({
-      where: {
-        id: req.session.user_id,
-      },
-    });
-
-    res.json({
-      data: result,
-    });
-  } else {
-    res.sendStatus(403);
-  }
-});
-
-app.post(`/dog/request`, async (req, res) => {
-  if (req.session.user_id) {
-    try {
-      const request = req.body;
-      const dogs = request.dogs;
-      delete request.dogs;
-
-      request.creatorId = req.session.user_id;
-      request.dogs = {
-        create: dogs,
+// File Uploads
+app.post('/upload', upload.array('files'), uploadFiles);
+function uploadFiles(req, res) {
+  res.json({
+    data: req.files.map((file) => {
+      return {
+        name: file.originalname,
+        location: file.filename,
+        mimeType: file.mimetype,
+        size: file.size,
       };
-
-      const result = await prisma.request.create({
-        data: request,
-      });
-
-      res.json({
-        data: result,
-      });
-    } catch (e) {
-      res.status(503).json({
-        error: true,
-        message: e.message,
-      });
-    }
-  } else {
-    res.sendStatus(403);
-  }
+    }),
+  });
+}
+app.get('/image/:id', async ({ params }, res) => {
+  const image = await prisma.dogImage.findFirst({
+    where: {
+      location: params.id,
+    },
+  });
+  res.setHeader('Content-Type', image.mimeType);
+  res.sendFile('/workspace/api/uploads/' + params.id);
 });
 
 const port = 3000;
-
 app.listen(port, () => {
   console.log(`API is running on port ${port}`);
 });

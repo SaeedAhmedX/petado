@@ -29,13 +29,7 @@
 </template>
 
 <script>
-import { ValidationObserver, ValidationProvider } from 'vee-validate';
-
 export default {
-  components: {
-    ValidationObserver,
-    ValidationProvider,
-  },
   data() {
     return {
       user: {
@@ -47,7 +41,7 @@ export default {
   methods: {
     async login() {
       try {
-        const result = await this.$axios.post('user/login', this.user);
+        await this.$axios.post('users/login', this.user);
         this.$router.push('/');
       } catch (e) {
         alert('Invalid user name or password');

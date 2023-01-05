@@ -1,70 +1,132 @@
 <template>
-  <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div id="navbarSupportedContent" class="collapse navbar-collapse">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item dropdown">
-              <a
-                id="navbarDropdown"
-                class="nav-link dropdown-toggle"
-                href="#"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Dropdown
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#">Action</a></li>
-                <li><a class="dropdown-item" href="#">Another action</a></li>
-                <li><hr class="dropdown-divider" /></li>
-                <li>
-                  <a class="dropdown-item" href="#">Something else here</a>
-                </li>
-              </ul>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link disabled"
-                href="#"
-                tabindex="-1"
-                aria-disabled="true"
-                >Disabled</a
-              >
-            </li>
-          </ul>
-          <form class="d-flex">
-            <input
-              class="form-control me-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button class="btn btn-outline-success" type="submit">
-              Search
-            </button>
-          </form>
+  <div class="container-fluid">
+    <div
+      class="search-container row height d-flex justify-content-center align-items-center mb-5"
+    >
+      <div class="col-md-6">
+        <div class="form">
+          <i class="bi bi-search"></i>
+          <input
+            v-model="search"
+            type="text"
+            class="form-control form-input"
+            placeholder="Search for a dog"
+          />
         </div>
       </div>
-    </nav>
+    </div>
+
+    <div class="dog-list d-flex justify-content-left">
+      <NuxtLink
+        v-for="dog in filteredDogs"
+        :key="dog.id"
+        :to="`/details/${dog.id}`"
+        tag="div"
+      >
+        <DogCard :dog="dog" />
+      </NuxtLink>
+    </div>
   </div>
 </template>
+
+<script>
+import DogCard from './../components/DogCard.vue';
+
+export default {
+  components: { DogCard },
+  layout: 'home',
+  data() {
+    return {
+      dogs: [],
+      search: '',
+    };
+  },
+  async mounted() {
+    const result = await this.$axios.get('dogs');
+    this.dogs = result.data.data;
+  },
+  computed: {
+    filteredDogs() {
+      if (this.search) {
+        const query = this.search.toLowerCase();
+        return this.dogs.filter((dog) => {
+          return (
+            dog.registerationId +
+            ':' +
+            dog.gender +
+            ':' +
+            dog.age +
+            ':' +
+            dog.color +
+            ':' +
+            dog.description +
+            ':' +
+            dog.type +
+            ':' +
+            dog.breed +
+            ':' +
+            dog.price
+          )
+            .toLowerCase()
+            .includes(query);
+        });
+      }
+      return this.dogs;
+    },
+  },
+  methods: {
+    showDetails(id) {
+      this.$router.push(`/details/${id}`);
+    },
+  },
+};
+</script>
+
+<style scoped lang="scss">
+.dog-list {
+  > * {
+    margin-right: 24px;
+    margin-bottom: 24px;
+  }
+}
+
+.search-container .form {
+  position: relative;
+}
+
+.form .bi-search {
+  position: absolute;
+  top: 12px;
+  left: 20px;
+  color: #9ca3af;
+  font-size: 24px;
+}
+
+.form span {
+  position: absolute;
+  right: 17px;
+  top: 13px;
+  padding: 2px;
+  border-left: 1px solid #d1d5db;
+}
+
+.left-pan {
+  padding-left: 7px;
+}
+
+.left-pan i {
+  padding-left: 10px;
+}
+
+.form-input {
+  height: 55px;
+  text-indent: 33px;
+  border-radius: 10px;
+  padding-left: 20px;
+}
+
+.form-input:focus {
+  box-shadow: none;
+  border: none;
+}
+</style>

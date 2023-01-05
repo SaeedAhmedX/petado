@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `DogImage` ADD COLUMN `size` INTEGER NOT NULL DEFAULT 0;

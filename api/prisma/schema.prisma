@@ -35,7 +35,9 @@ model DogImage {
   id        Int      @id @default(autoincrement())
   name      String
   location  String
+  mimeType  String   @default("image/jpeg")
   createdAt DateTime @default(now())
+  size      Int      @default(0)
   updatedAt DateTime @updatedAt
   Dog       Dog?     @relation(fields: [dogId], references: [id])
   dogId     Int?
@@ -69,7 +71,7 @@ model Dog {
   age             Int?
   color           String
   description     String
-  dogType         DogType
+  type         DogType
   breed           String
   price           Float
   images          DogImage[]

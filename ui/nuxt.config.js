@@ -65,7 +65,7 @@ export default {
       },
     },
     // Add exception
-    transpile: ['vee-validate/dist/rules'],
+    transpile: ['vee-validate/dist/rules', 'vue-upload-drop-images'],
     /*
      ** You can extend webpack config here
      */
