@@ -101,7 +101,7 @@ export default {
   async created() {
     try {
       const user = await this.$axios.get(`/users/details`);
-      this.user = user;
+      this.user = user.data.data;
     } catch (e) {
       this.$router.push('/login');
     }

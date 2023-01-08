@@ -29,7 +29,7 @@ export default {
     };
   },
   async mounted() {
-    const result = await this.$axios.get('dogs/wardrequests');
+    const result = await this.$axios.get('/dogs/wardrequests');
     this.dogs = result.data.data;
   },
 };
