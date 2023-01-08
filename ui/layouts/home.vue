@@ -30,23 +30,35 @@
                 title="Your Requests"
                 data-bs-toggle="tooltip"
                 data-bs-placement="right"
-                data-bs-original-title="Home"
+                data-bs-original-title="Your Requests"
               >
                 <i class="bi-hourglass fs-1 text-primary"></i>
               </NuxtLink>
             </li>
-            <!-- <li>
+            <li v-if="user?.isAdmin" class="nav-item">
               <NuxtLink
-                to="/work"
+                to="/councillors"
                 class="nav-link py-3 px-2"
-                title="Your Work"
+                title="Councillors"
                 data-bs-toggle="tooltip"
                 data-bs-placement="right"
-                data-bs-original-title="Dashboard"
+                data-bs-original-title="Councillors"
               >
-                <i class="bi-person-workspace fs-1 text-primary"></i>
+                <i class="bi-people fs-1 text-primary"></i>
               </NuxtLink>
-            </li> -->
+            </li>
+            <li v-if="user?.isCouncillor" class="nav-item">
+              <NuxtLink
+                to="/wardrequests"
+                class="nav-link py-3 px-2"
+                title="Requests in your ward"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                data-bs-original-title="Requests in your ward"
+              >
+                <i class="bi-textarea fs-1 text-primary"></i>
+              </NuxtLink>
+            </li>
           </ul>
           <div class="dropdown">
             <a
@@ -62,9 +74,12 @@
               class="dropdown-menu text-small shadow"
               aria-labelledby="dropdownUser3"
             >
-              <li><a class="dropdown-item" href="#">New project...</a></li>
-              <li><a class="dropdown-item" href="#">Settings</a></li>
-              <li><a class="dropdown-item" href="#">Profile</a></li>
+              <li>
+                <NuxtLink to="/profile" class="dropdown-item">Profile</NuxtLink>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" @click="logout">Logout</a>
+              </li>
             </ul>
           </div>
         </div>
@@ -75,6 +90,34 @@
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      user: null,
+    };
+  },
+  async created() {
+    try {
+      const user = await this.$axios.get(`/users/details`);
+      this.user = user;
+    } catch (e) {
+      this.$router.push('/login');
+    }
+  },
+  methods: {
+    async logout() {
+      try {
+        await this.$axios.get(`/users/logout`);
+      } catch (e) {
+      } finally {
+        this.$router.push('/login');
+      }
+    },
+  },
+};
+</script>
 
 <style lang="scss">
 .main-content-panel {

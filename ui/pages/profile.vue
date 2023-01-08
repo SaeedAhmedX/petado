@@ -1,5 +1,5 @@
 <template>
-  <UserForm />
+  <UserForm :is-new="false" />
 </template>
 
 <script>
@@ -9,5 +9,6 @@ export default {
   components: {
     UserForm,
   },
+  layout: 'home',
 };
 </script>

@@ -1,10 +1,7 @@
 <template>
   <div class="container-fluid">
     <div class="d-flex justify-content-between mb-5 mt-2">
-      <h3>Your Requests</h3>
-      <NuxtLink to="/requests/new">
-        <button class="btn btn-primary rounded-pill">+ ADD</button>
-      </NuxtLink>
+      <h3>Your Ward Requests</h3>
     </div>
 
     <div class="dog-list d-inline-flex justify-content-left">
@@ -21,7 +18,7 @@
 </template>
 
 <script>
-import DogCard from '../../components/DogCard.vue';
+import DogCard from '../components/DogCard.vue';
 
 export default {
   components: { DogCard },
@@ -32,7 +29,7 @@ export default {
     };
   },
   async mounted() {
-    const result = await this.$axios.get('dogs/userrequest');
+    const result = await this.$axios.get('dogs/wardrequests');
     this.dogs = result.data.data;
   },
 };

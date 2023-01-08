@@ -23,7 +23,12 @@
           class="form-control"
         />
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <div class="d-grid mx-auto text-center">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <p class="mt-3">
+          <NuxtLink to="/signup">Don't have an account?</NuxtLink>
+        </p>
+      </div>
     </form>
   </div>
 </template>

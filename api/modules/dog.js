@@ -27,6 +27,55 @@ router.get('/:id?', async ({ session, params, paginate }, res) => {
           },
         },
       });
+    } else if (params.id == 'wardrequests') {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: session.user_id,
+        },
+        include: {
+          admin: true,
+          councillor: true,
+        },
+      });
+      if (user.councillor) {
+        const usersOfWard = await prisma.user.findMany({
+          select: {
+            id: true,
+          },
+          where: {
+            wardNumber: user.councillor.wardNumber,
+          },
+        });
+        const userIdsOfWard = usersOfWard.map((user) => user.id);
+
+        result = await prisma.dog.findMany({
+          ...paginate,
+          orderBy: {
+            createdAt: 'asc',
+          },
+          where: {
+            request: {
+              creatorId: {
+                in: userIdsOfWard,
+              },
+            },
+          },
+          include: {
+            images: true,
+            request: {
+              include: {
+                creator: true,
+              },
+            },
+          },
+        });
+      } else {
+        res.status(403).json({
+          error: true,
+          message: 'You are not a councillor of any ward',
+        });
+        return;
+      }
     } else if (params.id) {
       result = await prisma.dog.findUnique({
         where: {
@@ -80,7 +129,7 @@ router.post(`/request`, async (req, res) => {
         create: dogs.map((dog) => {
           return {
             ...dog,
-            price: dog.price || 0,
+            price: parseFloat(dog.price) || 0,
             age: parseInt(dog.age),
             images: {
               create: dog.images,

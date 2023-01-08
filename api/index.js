@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import pagination from './middlewares/pagination';
 import userRouter from './modules/user';
 import dogRouter from './modules/dog';
+import councillorRouter from './modules/councillor';
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -25,6 +26,7 @@ app.use(pagination);
 // MODULES
 app.use('/users', userRouter);
 app.use('/dogs', dogRouter);
+app.use('/councillors', councillorRouter);
 
 // File Uploads
 app.post('/upload', upload.array('files'), uploadFiles);

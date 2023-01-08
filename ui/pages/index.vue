@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <div class="dog-list d-flex justify-content-left">
+    <div class="dog-list d-inline-flex justify-content-left">
       <NuxtLink
         v-for="dog in filteredDogs"
         :key="dog.id"
@@ -40,10 +40,6 @@ export default {
       dogs: [],
       search: '',
     };
-  },
-  async mounted() {
-    const result = await this.$axios.get('dogs');
-    this.dogs = result.data.data;
   },
   computed: {
     filteredDogs() {
@@ -74,16 +70,17 @@ export default {
       return this.dogs;
     },
   },
-  methods: {
-    showDetails(id) {
-      this.$router.push(`/details/${id}`);
-    },
+  async mounted() {
+    const result = await this.$axios.get('dogs');
+    this.dogs = result.data.data;
   },
 };
 </script>
 
 <style scoped lang="scss">
 .dog-list {
+  flex-wrap: wrap;
+
   > * {
     margin-right: 24px;
     margin-bottom: 24px;
