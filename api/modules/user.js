@@ -106,7 +106,7 @@ router.get('/logout', async (req, res) => {
 
 router.get(`/details`, async (req, res) => {
   if (req.session.user_id) {
-    const result = getSingleUser(req.session.user_id);
+    const result = await getSingleUser(req.session.user_id);
     res.json({
       data: result,
     });
