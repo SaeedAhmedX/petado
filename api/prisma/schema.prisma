@@ -83,7 +83,7 @@ model Councillor {
   id         Int      @id @default(autoincrement())
   userId     Int      @unique
   user       User     @relation(fields: [userId], references: [id])
-  wardNumber String
+  wardNumber String   @unique
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt @default(now())
 }

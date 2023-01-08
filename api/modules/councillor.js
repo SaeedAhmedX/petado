@@ -64,11 +64,21 @@ router.post(`/checkcoucillorstatus/:force?`, async (req, res) => {
 
       const user = await getSingleUserByEmail(email);
       if (req.params.force) {
-        prisma.councillor.create({
+        await prisma.councillor.delete({
+          where: {
+            wardNumber,
+          },
+        });
+
+        const result = await prisma.councillor.create({
           data: {
-            wardNumber: wardNumber,
+            wardNumber,
             userId: user.id,
           },
+        });
+        res.status(200).json({
+          error: false,
+          data: result,
         });
       } else {
         const wardCouncillor = await prisma.councillor.findFirst({
