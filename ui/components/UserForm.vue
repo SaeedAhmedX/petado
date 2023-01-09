@@ -262,7 +262,14 @@ export default {
           await this.$axios.post('users', this.user);
           this.$router.push('/login');
         } else {
-          await this.$axios.put(`users/${this.user.id}`, this.user);
+          const data = { ...this.user };
+          delete data.isAdmin;
+          delete data.isCouncillor;
+          delete data.updatedAt;
+          delete data.admin;
+          delete data.councillor;
+          delete data.lastLogin;
+          await this.$axios.put(`users/${this.user.id}`, data);
           alert('Profile updated successfully');
         }
       } catch (e) {
